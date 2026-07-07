@@ -1,0 +1,12 @@
+[project]
+name = "bidirectional-bird-call-bird-image-generator"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "pandas>=2.3.3",
+    "torch>=2.12.1",
+    "torchaudio>=2.11.0",
+    "torchvision>=0.27.1",
+]
