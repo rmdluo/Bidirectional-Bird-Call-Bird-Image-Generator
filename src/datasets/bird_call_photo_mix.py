@@ -2,6 +2,8 @@ import os
 import logging
 import random
 import pandas as pd
+import torchaudio
+import torchvision
 from torch.utils.data import Dataset
 
 logger = logging.getLogger(__name__)
@@ -17,6 +19,9 @@ class BirdCallPhotoMix(Dataset):
         mixing_mode="one-to-one",
         num_pairs_per_species=50,
         random_seed=None,
+        audio_transform=None,
+        photo_transform=None,
+        target_transform=None,
         **kwargs,
     ):
         """PyTorch dataset that links audio to photos, matched on species.
@@ -46,6 +51,11 @@ class BirdCallPhotoMix(Dataset):
             f"Constructing BirdCallPhotoMix dataset from audio directory `{audio_dir}` and photo directory `{photo_dir}`."
         )
         self.audio_dir, self.photo_dir = audio_dir, photo_dir
+        self.audio_transform, self.photo_transform, self.target_transform = (
+            audio_transform,
+            photo_transform,
+            target_transform,
+        )
         self.rng = random.Random(random_seed)
 
         # Extract species
@@ -163,4 +173,16 @@ class BirdCallPhotoMix(Dataset):
         return len(self.pairs)
 
     def __getitem__(self, idx):
-        
+        pair = self.pairs.iloc[idx]
+        waveform, sample_rate = torchaudio.load(pair["audio_filepath"])
+        img = torchvision.io.read_image(pair["photo_filepath"])
+        species = pair["species"]
+
+        if self.audio_transform is not None:
+            waveform, sample_rate = self.audio_transform(waveform, sample_rate)
+        if self.photo_transform is not None:
+            img = self.photo_transform(img)
+        if self.target_transform is not None:
+            species = self.target_transform(species)
+
+        return waveform, sample_rate, img, species
