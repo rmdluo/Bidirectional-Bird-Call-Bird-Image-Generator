@@ -16,6 +16,7 @@ class BirdCallPhotoMix(Dataset):
         self,
         audio_dir,
         photo_dir,
+        split="train",
         mixing_mode="one-to-one",
         num_pairs_per_species=50,
         random_seed=None,
@@ -59,8 +60,20 @@ class BirdCallPhotoMix(Dataset):
         self.rng = random.Random(random_seed)
 
         # Extract species
-        audio_species = set(os.listdir(audio_dir))
-        photo_species = set(os.listdir(photo_dir))
+        audio_species = set(
+            [
+                name
+                for name in os.listdir(os.path.join(audio_dir, split))
+                if os.path.isdir(os.path.join(audio_dir, split, name))
+            ]
+        )
+        photo_species = set(
+            [
+                name
+                for name in os.listdir(os.path.join(photo_dir, split))
+                if os.path.isdir(os.path.join(photo_dir, split, name))
+            ]
+        )
         shared_species = audio_species.intersection(photo_species)
         logger.info(f"Found {len(shared_species)} shared species.")
 
@@ -71,8 +84,12 @@ class BirdCallPhotoMix(Dataset):
             "audio_filepath": [],
         }
         for species in sorted(shared_species):
-            species_audio_files = sorted(os.listdir(os.path.join(audio_dir, species)))
-            species_photo_files = sorted(os.listdir(os.path.join(photo_dir, species)))
+            species_audio_files = sorted(
+                os.listdir(os.path.join(audio_dir, split, species))
+            )
+            species_photo_files = sorted(
+                os.listdir(os.path.join(photo_dir, split, species))
+            )
             if mixing_mode == "one-to-one":
                 for i in range(
                     min(
@@ -83,10 +100,10 @@ class BirdCallPhotoMix(Dataset):
                 ):
                     self.pairs["species"].append(species)
                     self.pairs["photo_filepath"].append(
-                        os.path.join(photo_dir, species, species_photo_files[i])
+                        os.path.join(photo_dir, split, species, species_photo_files[i])
                     )
                     self.pairs["audio_filepath"].append(
-                        os.path.join(audio_dir, species, species_audio_files[i])
+                        os.path.join(audio_dir, split, species, species_audio_files[i])
                     )
             elif mixing_mode == "one-to-many":
                 num_matches = kwargs["num_matches"]
@@ -101,10 +118,10 @@ class BirdCallPhotoMix(Dataset):
                     for photo_file in photo_files:
                         self.pairs["species"].append(species)
                         self.pairs["photo_filepath"].append(
-                            os.path.join(photo_dir, species, photo_file)
+                            os.path.join(photo_dir, split, species, photo_file)
                         )
                         self.pairs["audio_filepath"].append(
-                            os.path.join(audio_dir, species, audio_file)
+                            os.path.join(audio_dir, split, species, audio_file)
                         )
 
                         num_pairs += 1
@@ -128,10 +145,10 @@ class BirdCallPhotoMix(Dataset):
                     for audio_file in audio_files:
                         self.pairs["species"].append(species)
                         self.pairs["photo_filepath"].append(
-                            os.path.join(photo_dir, species, photo_file)
+                            os.path.join(photo_dir, split, species, photo_file)
                         )
                         self.pairs["audio_filepath"].append(
-                            os.path.join(audio_dir, species, audio_file)
+                            os.path.join(audio_dir, split, species, audio_file)
                         )
 
                         num_pairs += 1
@@ -157,10 +174,10 @@ class BirdCallPhotoMix(Dataset):
                 for photo_file, audio_file in species_pairs:
                     self.pairs["species"].append(species)
                     self.pairs["photo_filepath"].append(
-                        os.path.join(photo_dir, species, photo_file)
+                        os.path.join(photo_dir, split, species, photo_file)
                     )
                     self.pairs["audio_filepath"].append(
-                        os.path.join(audio_dir, species, audio_file)
+                        os.path.join(audio_dir, split, species, audio_file)
                     )
             else:
                 raise ValueError(
