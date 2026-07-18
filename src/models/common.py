@@ -18,7 +18,7 @@ class ResidualBlock(torch.nn.Module):
         )
         self.act1 = torch.nn.SiLU()
         self.act2 = torch.nn.SiLU()
-        self.norm1 = torch.nn.GroupNorm(group_norm_num_groups, out_channels)
+        self.norm1 = torch.nn.GroupNorm(group_norm_num_groups, in_channels)
         self.norm2 = torch.nn.GroupNorm(group_norm_num_groups, out_channels)
         self.residual = (
             torch.nn.Conv2d(in_channels, out_channels, 1)

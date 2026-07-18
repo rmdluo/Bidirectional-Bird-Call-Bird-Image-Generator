@@ -21,6 +21,7 @@ class BirdCallPhotoMix(Dataset):
         num_pairs_per_species=50,
         random_seed=None,
         audio_transform=None,
+        mel_spectrogram_transform=None,
         photo_transform=None,
         target_transform=None,
         **kwargs,
@@ -52,8 +53,14 @@ class BirdCallPhotoMix(Dataset):
             f"Constructing BirdCallPhotoMix dataset from audio directory `{audio_dir}` and photo directory `{photo_dir}`."
         )
         self.audio_dir, self.photo_dir = audio_dir, photo_dir
-        self.audio_transform, self.photo_transform, self.target_transform = (
+        (
+            self.audio_transform,
+            self.mel_spectrogram_transform,
+            self.photo_transform,
+            self.target_transform,
+        ) = (
             audio_transform,
+            mel_spectrogram_transform,
             photo_transform,
             target_transform,
         )
