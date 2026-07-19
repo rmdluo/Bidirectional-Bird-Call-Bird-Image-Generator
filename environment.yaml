@@ -15,6 +15,7 @@ dependencies:
   - ipykernel
   - tqdm
   - librosa
+  - seaborn
   - pip
   - pip:
       - torchcodec
