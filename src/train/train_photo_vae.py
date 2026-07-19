@@ -19,6 +19,7 @@ class PhotoVAETrainParameters:
         torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
     )
     seed: int = 42
+    compile: bool = True
 
 
 @dataclass
@@ -75,7 +76,8 @@ def train(
         )
 
     vae = VAE(vae_parameters).to(train_parameters.device)
-    vae.compile()
+    if train_parameters.compile:
+        vae.compile()
 
     optimizer = torch.optim.AdamW(vae.parameters(), train_parameters.lr)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(

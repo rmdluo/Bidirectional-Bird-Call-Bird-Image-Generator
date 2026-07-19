@@ -5,6 +5,8 @@ from models.common import ResidualBlock
 
 @dataclass
 class VAEParameters:
+    input_channels: int = 3
+    input_shape: tuple = (3, 128, 128)
     latent_dim: int = 8
     reconstruction_weight: float = 1.0
     kl_weight: float = 0.0001
@@ -33,11 +35,12 @@ class VAE(torch.nn.Module):
         latent_dim = params.latent_dim
         reconstruction_weight = params.reconstruction_weight
         kl_weight = params.kl_weight
+        self.input_shape = params.input_shape
 
         # Assume input size of 3 x 128 x 128
         # Get output size of latent_dim x 16 x 16
         self.encoder = torch.nn.Sequential(
-            torch.nn.Conv2d(3, 64, kernel_size=7, padding=3),
+            torch.nn.Conv2d(params.input_channels, 64, kernel_size=7, padding=3),
             ResidualBlock(64, 64, kernel_size=3),  # 64 x 128 x 128
             ResidualBlock(64, 64, kernel_size=3),  # 64 x 128 x 128
             torch.nn.Conv2d(
@@ -78,7 +81,7 @@ class VAE(torch.nn.Module):
         self.decoder_final = torch.nn.Sequential(
             torch.nn.GroupNorm(8, 64),
             torch.nn.SiLU(),
-            torch.nn.Conv2d(64, 3, 7, padding="same"),
+            torch.nn.Conv2d(64, params.input_channels, 7, padding="same"),
         )
 
         # Param for loss
@@ -91,7 +94,12 @@ class VAE(torch.nn.Module):
 
     def decode(self, z):
         x = self.decoder(z)
-        return self.decoder_final(x)
+        output = self.decoder_final(x)
+        if len(output.shape) == 4:
+            cropped = output[:, :, : self.input_shape[1], : self.input_shape[2]]
+        else:
+            cropped = output[:, : self.input_shape[1], : self.input_shape[2]]
+        return cropped
 
     @staticmethod
     def sample(mu, logvar):

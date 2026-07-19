@@ -6,6 +6,11 @@ import torch
 import torchaudio
 import torch.nn.functional as F
 
+import sys
+
+sys.path.append("../src")
+from processing.audio import waveform_to_log_mel, log_mel_to_waveform
+
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
@@ -86,19 +91,6 @@ def main() -> None:
         if not args.dry_run:
             shutil.rmtree(audio_output_folder)
 
-    mel_transform = torchaudio.transforms.MelSpectrogram(
-        sample_rate=args.sample_rate,
-        n_fft=1024,
-        hop_length=256,
-        n_mels=128,
-        power=2.0,
-    )
-
-    to_db = torchaudio.transforms.AmplitudeToDB(
-        stype="power",
-        top_db=80,
-    )
-
     files = sorted(list(args.audio_dataset_path.glob("**/*.wav")))
     for file in files:
         waveform, sample_rate = torchaudio.load(file, normalize=True)
@@ -108,23 +100,9 @@ def main() -> None:
                 print(f"Skipping empty audio file: {file}")
             continue
 
-        if sample_rate != args.sample_rate:
-            waveform = torchaudio.functional.resample(
-                waveform,
-                sample_rate,
-                args.sample_rate,
-            )
-            sample_rate = args.sample_rate
-
-        waveform = waveform[:, : (args.sample_rate * args.time)]
-        if waveform.shape[-1] < (args.sample_rate * args.time):
-            waveform = F.pad(
-                waveform,
-                (0, (args.sample_rate * args.time) - waveform.shape[-1]),
-            )
-
-        log_mel = to_db(mel_transform(waveform))
-        log_mel = ((log_mel + 80.0) / 80.0).clamp(0.0, 1.0)
+        log_mel = waveform_to_log_mel(
+            waveform, sample_rate, args.sample_rate, args.time
+        )
 
         if args.in_place:
             if args.verbose:

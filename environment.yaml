@@ -14,6 +14,7 @@ dependencies:
   - ffmpeg
   - ipykernel
   - tqdm
+  - librosa
   - pip
   - pip:
       - torchcodec

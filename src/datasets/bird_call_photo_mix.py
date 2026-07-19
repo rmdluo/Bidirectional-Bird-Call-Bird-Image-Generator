@@ -4,6 +4,7 @@ import random
 import pandas as pd
 import torchaudio
 import torchvision
+import torch
 from torch.utils.data import Dataset
 
 logger = logging.getLogger(__name__)
@@ -17,6 +18,7 @@ class BirdCallPhotoMix(Dataset):
         audio_dir,
         photo_dir,
         split="train",
+        from_spectrogram=True,
         mixing_mode="one-to-one",
         num_pairs_per_species=50,
         random_seed=None,
@@ -64,6 +66,7 @@ class BirdCallPhotoMix(Dataset):
             photo_transform,
             target_transform,
         )
+        self.from_spectrogram = from_spectrogram
         self.rng = random.Random(random_seed)
 
         # Extract species
@@ -85,6 +88,10 @@ class BirdCallPhotoMix(Dataset):
         logger.info(f"Found {len(shared_species)} shared species.")
 
         # Generate pairings
+        if from_spectrogram:
+            audio_extension = ".pt"
+        else:
+            audio_extension = ".wav"
         self.pairs = {
             "species": [],
             "photo_filepath": [],
@@ -92,7 +99,11 @@ class BirdCallPhotoMix(Dataset):
         }
         for species in sorted(shared_species):
             species_audio_files = sorted(
-                os.listdir(os.path.join(audio_dir, split, species))
+                [
+                    file
+                    for file in os.listdir(os.path.join(audio_dir, split, species))
+                    if file.endswith(audio_extension)
+                ]
             )
             species_photo_files = sorted(
                 os.listdir(os.path.join(photo_dir, split, species))
@@ -198,15 +209,24 @@ class BirdCallPhotoMix(Dataset):
 
     def __getitem__(self, idx):
         pair = self.pairs.iloc[idx]
-        waveform, sample_rate = torchaudio.load(pair["audio_filepath"])
-        img = torchvision.io.read_image(pair["photo_filepath"])
-        species = pair["species"]
 
-        if self.audio_transform is not None:
-            waveform, sample_rate = self.audio_transform(waveform, sample_rate)
+        img = torchvision.io.read_image(pair["photo_filepath"])
         if self.photo_transform is not None:
             img = self.photo_transform(img)
+
+        species = pair["species"]
         if self.target_transform is not None:
             species = self.target_transform(species)
 
-        return waveform, sample_rate, img, species
+        if not self.from_spectrogram:
+            waveform, sample_rate = torchaudio.load(
+                pair["audio_filepath"], normalize=True
+            )
+            if self.audio_transform is not None:
+                waveform, sample_rate = self.audio_transform(waveform, sample_rate)
+            return (waveform, sample_rate), img, species
+        else:
+            log_mel = torch.load(pair["audio_filepath"], weights_only=True)
+            if self.mel_spectrogram_transform is not None:
+                log_mel = self.mel_spectrogram_transform(log_mel)
+            return log_mel, img, species
