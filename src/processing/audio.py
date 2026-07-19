@@ -62,8 +62,6 @@ def log_mel_to_waveform(log_mel, sample_rate=16000, time=5.0):
     linear_power = inverse_mel(mel_power)
     linear_power = linear_power.clamp_min(0.0)
 
-    print(linear_power.device)
-
     griffin_lim = torchaudio.transforms.GriffinLim(
         n_fft=1024,
         win_length=1024,
