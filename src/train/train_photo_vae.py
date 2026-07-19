@@ -159,12 +159,12 @@ def train(
                     "train_losses": {
                         "total_loss": train_losses,
                         "reconstruction_loss": train_reconstruction_losses,
-                        "kl_losses": train_kl_losses,
+                        "kl_loss": train_kl_losses,
                     },
                     "val_losses": {
                         "total_loss": val_losses,
                         "reconstruction_loss": val_reconstruction_losses,
-                        "kl_losses": val_kl_losses,
+                        "kl_loss": val_kl_losses,
                     },
                     "train_generator": train_generator.get_state(),
                 },
@@ -216,12 +216,12 @@ def train(
             "train_losses": {
                 "total_loss": train_losses,
                 "reconstruction_loss": train_reconstruction_losses,
-                "kl_losses": train_kl_losses,
+                "kl_loss": train_kl_losses,
             },
             "val_losses": {
                 "total_loss": val_losses,
                 "reconstruction_loss": val_reconstruction_losses,
-                "kl_losses": val_kl_losses,
+                "kl_loss": val_kl_losses,
             },
             "train_generator": train_generator.get_state(),
         },
