@@ -20,6 +20,7 @@ train_parameters = PhotoVAETrainParameters(
     epochs=30,
     num_workers=16,
     model_save_path="../models/audio_vae/" + str(time.time_ns()),
+    model_save_name="audio_vae",
     model_save_frequency=1,
     device="cuda:1",
     seed=42,

@@ -14,6 +14,7 @@ class PhotoVAETrainParameters:
     epochs: int = 10
     num_workers: int = 16
     model_save_path: str = "photo_vae/"
+    model_save_name: str = "photo_vae"
     model_save_frequency: int = 5
     device: torch.device = (
         torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
@@ -169,7 +170,8 @@ def train(
                     "train_generator": train_generator.get_state(),
                 },
                 os.path.join(
-                    train_parameters.model_save_path, f"photo_vae_epoch_{epoch}.tar"
+                    train_parameters.model_save_path,
+                    f"{train_parameters.model_save_name}_epoch_{epoch}.tar",
                 ),
             )
 
@@ -225,7 +227,10 @@ def train(
             },
             "train_generator": train_generator.get_state(),
         },
-        os.path.join(train_parameters.model_save_path, f"photo_vae_final.tar"),
+        os.path.join(
+            train_parameters.model_save_path,
+            f"{train_parameters.model_save_name}_final.tar",
+        ),
     )
 
     return PhotoVAETrainOutputs(

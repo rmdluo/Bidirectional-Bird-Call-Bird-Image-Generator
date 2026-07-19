@@ -20,6 +20,7 @@ train_parameters = PhotoVAETrainParameters(
     epochs=30,
     num_workers=16,
     model_save_path="../models/photo_vae/" + str(time.time_ns()),
+    model_save_name="photo_vae",
     model_save_frequency=1,
     device="cuda:0",
     seed=42,
