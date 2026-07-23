@@ -39,7 +39,6 @@ with torch.no_grad():
         output_path.parent.mkdir(parents=True, exist_ok=True)
         torch.save(
             {
-                "input": file,
                 "mean": mean.cpu().squeeze(0),
                 "logvar": logvar.cpu().squeeze(0),
             },
