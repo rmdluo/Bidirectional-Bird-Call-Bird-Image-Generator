@@ -42,4 +42,11 @@ with torch.no_grad():
 
         output_path = (OUTPUT_PATH / file.relative_to(DATASET_PATH)).with_suffix(".pt")
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        torch.save({"mean": mean.cpu(), "logvar": logvar.cpu()}, output_path)
+        torch.save(
+            {
+                "input": file,
+                "mean": mean.cpu().squeeze(0),
+                "logvar": logvar.cpu().squeeze(0),
+            },
+            output_path,
+        )
