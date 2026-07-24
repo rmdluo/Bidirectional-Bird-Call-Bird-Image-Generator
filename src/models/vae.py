@@ -10,6 +10,7 @@ class VAEParameters:
     latent_dim: int = 8
     reconstruction_weight: float = 1.0
     kl_weight: float = 0.0001
+    seed: int = 42
 
 
 @dataclass
@@ -88,6 +89,10 @@ class VAE(torch.nn.Module):
         self.reconstruction_weight = reconstruction_weight
         self.kl_weight = kl_weight
 
+        # Param for random
+        self.generator = torch.Generator()
+        self.generator.manual_seed(params.seed)
+
     def encode(self, x):
         z = self.encoder(x)
         return self.encoder_mu(z), self.encoder_logvar(z)
@@ -101,10 +106,9 @@ class VAE(torch.nn.Module):
             cropped = output[:, : self.input_shape[1], : self.input_shape[2]]
         return cropped
 
-    @staticmethod
-    def sample(mu, logvar):
+    def sample(self, mu, logvar):
         std_dev = torch.exp(0.5 * logvar)
-        return mu + std_dev * torch.randn_like(std_dev)
+        return mu + std_dev * torch.randn(std_dev.shape, generator=self.generator)
 
     def forward(self, x):
         mu, logvar = self.encode(x)

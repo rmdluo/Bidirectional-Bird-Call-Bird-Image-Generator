@@ -13,6 +13,7 @@ vae_parameters = VAEParameters(
     latent_dim=4,
     reconstruction_weight=1.0,
     kl_weight=0.001,
+    seed=42,
 )
 train_parameters = PhotoVAETrainParameters(
     lr=0.001,
