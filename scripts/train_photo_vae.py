@@ -7,7 +7,7 @@ from models.vae import VAEParameters
 from train.train_photo_vae import train, PhotoVAETrainParameters
 import time
 
-DATASET_PATH = "../data/iNaturalistPrunedResizedPhoto"
+DATASET_PATH = "../data/iNaturalistPrunedCropped"
 vae_parameters = VAEParameters(
     input_channels=3,
     latent_dim=4,

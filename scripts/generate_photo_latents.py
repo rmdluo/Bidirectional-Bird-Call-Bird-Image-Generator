@@ -7,10 +7,10 @@ import torchvision
 from tqdm import tqdm
 from models.vae import VAE
 
-device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
+device = torch.device("cuda:1") if torch.cuda.is_available() else torch.device("cpu")
 
-DATASET_PATH = Path("../data/iNaturalistPrunedResizedPhoto")
-CHECKPOINT_PATH = "../models/photo_vae/1784428654983751466/photo_vae_final.tar"
+DATASET_PATH = Path("../data/iNaturalistPrunedCropped")
+CHECKPOINT_PATH = "../models/photo_vae/1784935571103765988/photo_vae_final.tar"
 OUTPUT_PATH = Path("../data/iNaturalistLatentsPhoto")
 
 checkpoint = torch.load(CHECKPOINT_PATH, weights_only=False)

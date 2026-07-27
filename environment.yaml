@@ -17,6 +17,7 @@ dependencies:
   - librosa
   - seaborn
   - pip
+  - diffusers
   - pip:
       - torchcodec
       - ultralytics

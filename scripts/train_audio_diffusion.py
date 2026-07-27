@@ -12,23 +12,23 @@ AUDIO_VAE_CHECKPOINT_PATH = (
     "../models/audio_vae/1784428657621265322/photo_vae_final.tar"
 )
 PHOTO_VAE_CHECKPOINT_PATH = (
-    "../models/photo_vae/1784428654983751466/photo_vae_final.tar"
+    "../models/photo_vae/1784935571103765988/photo_vae_final.tar"
 )
 
 diffusion_parameters = DiffusionParameters(
     input_shape=(4, 16, 40),
     conditioning_shape=(4, 16, 16),
-    output_shape=(4, 16, 16),
+    output_shape=(4, 16, 40),
     seed=42,
 )
 train_parameters = DiffusionTrainParameters(
     lr=0.0001,
-    batch_size=128,
-    epochs=260,
+    batch_size=64,
+    epochs=200,
     num_workers=16,
     model_save_path="../models/conditional_audio_diffusion/" + str(time.time_ns()),
     model_save_name="conditional_audio_diffusion",
-    model_save_frequency=1,
+    model_save_frequency=20,
     device="cuda:1",
     seed=42,
     compile=True,
