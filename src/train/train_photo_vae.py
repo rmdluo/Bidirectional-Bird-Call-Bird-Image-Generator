@@ -4,6 +4,7 @@ import torch
 from tqdm import tqdm
 from dataclasses import dataclass, field
 from datasets.bird_photos import BirdPhotos
+from datasets.bird_audio import BirdAudio
 from models.vae import VAE, VAEParameters
 
 
@@ -38,12 +39,18 @@ class PhotoVAETrainOutputs:
 
 
 def train(
-    train_photo_dataset: BirdPhotos,
-    val_photo_dataset: BirdPhotos,
-    test_photo_dataset: BirdPhotos,
+    train_photo_dataset: BirdPhotos | BirdAudio,
+    val_photo_dataset: BirdPhotos | BirdAudio,
+    test_photo_dataset: BirdPhotos | BirdAudio,
     vae_parameters: VAEParameters,
     train_parameters: PhotoVAETrainParameters,
 ):
+    for ds in [train_photo_dataset, val_photo_dataset, test_photo_dataset]:
+        if isinstance(ds, BirdAudio) and not ds.from_spectrogram:
+            raise Exception(
+                "Non-spectrogram bird audio dataset passed to train_photo_vae.py"
+            )
+
     train_generator = torch.Generator()
     train_generator.manual_seed(train_parameters.seed)
     train_dl = torch.utils.data.DataLoader(
