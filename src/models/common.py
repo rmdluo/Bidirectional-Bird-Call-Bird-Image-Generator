@@ -2,22 +2,6 @@ from math import log, pi
 import torch
 
 
-class SinusoidalEmbedding(torch.nn.Module):
-    def __init__(self, embed_d=32, max_freq=1000.0):
-        super().__init__()
-        self.embed_d = embed_d
-        self.register_buffer(
-            "freqs", torch.exp(torch.linspace(0.0, log(max_freq), embed_d // 2))
-        )
-
-    def forward(self, noise_var):  # noise_var scalar B many
-        angles = 2.0 * pi * self.freqs * noise_var.unsqueeze(-1)  # B x embed//2
-        sin_emb = torch.sin(angles)  # B x embed//2
-        cos_emb = torch.cos(angles)  # B x embed//2
-        # B x embed//2 x 1 x 1
-        return torch.cat([sin_emb, cos_emb], dim=-1).unsqueeze(-1).unsqueeze(-1)
-
-
 class ResidualBlock(torch.nn.Module):
     def __init__(
         self,

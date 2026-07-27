@@ -203,7 +203,7 @@ class BirdCallPhotoLatentMix(Dataset):
                     f"Invalid mixing mode: {mixing_mode}. Must be one-to-one, one-to-many, many-to-one, or many-to-many"
                 )
 
-        self.pairs = pd.DataFrame(self.pairs)[:100]
+        self.pairs = pd.DataFrame(self.pairs)
 
     def __len__(self):
         return len(self.pairs)

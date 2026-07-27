@@ -108,7 +108,9 @@ class VAE(torch.nn.Module):
 
     def sample(self, mu, logvar):
         std_dev = torch.exp(0.5 * logvar)
-        return mu + std_dev * torch.randn(std_dev.shape, generator=self.generator)
+        return mu + std_dev * torch.randn(std_dev.shape, generator=self.generator).to(
+            std_dev.device
+        )
 
     def forward(self, x):
         mu, logvar = self.encode(x)
