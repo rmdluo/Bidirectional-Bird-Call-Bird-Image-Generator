@@ -7,6 +7,7 @@ from models.common import ResidualBlock
 class VAEParameters:
     input_channels: int = 3
     input_shape: tuple = (3, 128, 128)
+    output_shape: tuple = (16, 16)
     latent_dim: int = 8
     reconstruction_weight: float = 1.0
     kl_weight: float = 0.0001
@@ -37,6 +38,7 @@ class VAE(torch.nn.Module):
         reconstruction_weight = params.reconstruction_weight
         kl_weight = params.kl_weight
         self.input_shape = params.input_shape
+        self.output_shape = params.output_shape
 
         # Assume input size of 3 x 128 x 128
         # Get output size of latent_dim x 16 x 16
@@ -62,6 +64,19 @@ class VAE(torch.nn.Module):
         )
         self.encoder_mu = torch.nn.Conv2d(256, latent_dim, 3, padding="same")
         self.encoder_logvar = torch.nn.Conv2d(256, latent_dim, 3, padding="same")
+
+        with torch.no_grad():
+            z = self.encoder(
+                torch.randn(
+                    1,
+                    *self.input_shape,
+                    device=next(self.encoder.parameters()).device,
+                    dtype=next(self.encoder.parameters()).dtype,
+                )
+            )
+            mus = self.encoder_mu(z)
+
+            self.intermediate_latent_shape = mus.shape[1:]
 
         # Assume input size of latent_dim x 16 x 16
         # Get output size of 3 x 128 x 128
@@ -95,7 +110,21 @@ class VAE(torch.nn.Module):
 
     def encode(self, x):
         z = self.encoder(x)
-        return self.encoder_mu(z), self.encoder_logvar(z)
+        mus = self.encoder_mu(z)
+        logvars = self.encoder_logvar(z)
+
+        if (
+            self.input_shape[1] != self.output_shape[0]
+            or self.input_shape[2] != self.output_shape[1]
+        ):
+            mus = torch.nn.functional.interpolate(
+                mus, size=self.output_shape, mode="bilinear", align_corners=False
+            )
+            logvars = torch.nn.functional.interpolate(
+                logvars, size=self.output_shape, mode="bilinear", align_corners=False
+            )
+
+        return mus, logvars
 
     def decode(self, z):
         x = self.decoder(z)
@@ -107,6 +136,29 @@ class VAE(torch.nn.Module):
         return cropped
 
     def sample(self, mu, logvar):
+        if (
+            self.input_shape[1] != self.output_shape[0]
+            or self.input_shape[2] != self.output_shape[1]
+        ):
+            mu = torch.nn.functional.interpolate(
+                mu,
+                size=(
+                    self.intermediate_latent_shape[1],
+                    self.intermediate_latent_shape[2],
+                ),
+                mode="bilinear",
+                align_corners=False,
+            )
+            logvar = torch.nn.functional.interpolate(
+                logvar,
+                size=(
+                    self.intermediate_latent_shape[1],
+                    self.intermediate_latent_shape[2],
+                ),
+                mode="bilinear",
+                align_corners=False,
+            )
+
         std_dev = torch.exp(0.5 * logvar)
         return mu + std_dev * torch.randn(std_dev.shape, generator=self.generator).to(
             std_dev.device

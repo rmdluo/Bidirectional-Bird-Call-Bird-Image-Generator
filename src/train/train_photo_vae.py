@@ -46,7 +46,7 @@ def train(
     train_parameters: PhotoVAETrainParameters,
 ):
     for ds in [train_photo_dataset, val_photo_dataset, test_photo_dataset]:
-        if isinstance(ds, BirdAudio) and not ds.from_spectrogram:
+        if ds is not None and isinstance(ds, BirdAudio) and not ds.from_spectrogram:
             raise Exception(
                 "Non-spectrogram bird audio dataset passed to train_photo_vae.py"
             )
