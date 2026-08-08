@@ -19,6 +19,9 @@ diffusion_parameters = DiffusionParameters(
     input_shape=(4, 16, 40),
     conditioning_shape=(4, 16, 16),
     output_shape=(4, 16, 40),
+    conditioning_dim=256,
+    unet_block_out_channels=(320, 640, 1280),
+    num_train_steps=1000,
     seed=42,
 )
 train_parameters = DiffusionTrainParameters(

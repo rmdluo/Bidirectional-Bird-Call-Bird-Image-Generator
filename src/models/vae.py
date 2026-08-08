@@ -140,6 +140,11 @@ class VAE(torch.nn.Module):
             self.input_shape[1] != self.output_shape[0]
             or self.input_shape[2] != self.output_shape[1]
         ):
+            unsqueeze = len(mu.shape) < 4
+            if unsqueeze:
+                mu = mu.unsqueeze(0)
+                logvar = logvar.unsqueeze(0)
+
             mu = torch.nn.functional.interpolate(
                 mu,
                 size=(
@@ -158,6 +163,10 @@ class VAE(torch.nn.Module):
                 mode="bilinear",
                 align_corners=False,
             )
+
+            if unsqueeze:
+                mu = mu.squeeze(0)
+                logvar = logvar.squeeze(0)
 
         std_dev = torch.exp(0.5 * logvar)
         return mu + std_dev * torch.randn(std_dev.shape, generator=self.generator).to(

@@ -4,6 +4,7 @@ data
 .vscode
 *.tar.gz
 *.tar
+models/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

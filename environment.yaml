@@ -22,3 +22,4 @@ dependencies:
       - torchcodec
       - ultralytics
       - opencv
+      - clean-fid
