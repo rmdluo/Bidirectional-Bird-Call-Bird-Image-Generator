@@ -29,7 +29,7 @@ AUDIO_DIFFUSION_CHECKPOINT_PATH = "../models/conditional_audio_diffusion/1785032
 CONTRASTIVE_LATENT_DATASET_PATH = "../data/iNaturalistLatentsContrastiveAudio"
 CONTRASTIVE_AUDIO_VAE_CHECKPOINT_PATH = "../models/contrastive_audio_vae/1785588335498284773/contrastive_audio_vae_final.tar"
 CONTRASTIVE_PHOTO_DIFFUSION_CHECKPOINT_PATH = "../models/contrastive_conditional_photo_diffusion/1785617075648407339/contrastive_conditional_photo_diffusion_final.tar"
-CONTRASTIVE_AUDIO_DIFFUSION_CHECKPOINT_PATH = "../models/contrastive_conditional_audio_diffusion/1785615911625265945/contrastive_conditional_audio_diffusion_epoch_39.tar"
+CONTRASTIVE_AUDIO_DIFFUSION_CHECKPOINT_PATH = "../models/contrastive_conditional_audio_diffusion/1785615911625265945/contrastive_conditional_audio_diffusion_final.tar"
 
 PHOTO_CLASSIFIER_PATH = "../models/yolo26_bird_classifier/weights/best.pt"
 
@@ -40,108 +40,7 @@ BATCH_SIZE = 32
 
 
 def evaluate_audio_metrics():
-    results = {}
-
-    for contrastive in [False, True]:
-        diffusion_checkpoint = torch.load(
-            AUDIO_DIFFUSION_CHECKPOINT_PATH, weights_only=False, map_location="cpu"
-        )
-        diffusion_parameters = diffusion_checkpoint["model_parameters"]
-        train_parameters = diffusion_checkpoint["train_parameters"]
-        train_parameters.device = DEVICE
-
-        diffusion = Diffusion(diffusion_parameters)
-        diffusion.load_state_dict(diffusion_checkpoint["model_state_dict"])
-        diffusion = diffusion.to(train_parameters.device)
-        diffusion.eval()
-
-        vae_checkpoint = torch.load(
-            AUDIO_VAE_CHECKPOINT_PATH, weights_only=False, map_location="cpu"
-        )
-        vae_parameters = vae_checkpoint["model_parameters"]
-        vae = VAE(vae_parameters)
-        vae.load_state_dict(vae_checkpoint["model_state_dict"])
-        vae = vae.to(train_parameters.device)
-        vae.eval()
-
-        train_dataset = BirdCallPhotoLatentMix(
-            (
-                AUDIO_LATENT_DATASET_PATH
-                if not contrastive
-                else CONTRASTIVE_LATENT_DATASET_PATH
-            ),
-            PHOTO_LATENT_DATASET_PATH,
-            (
-                AUDIO_VAE_CHECKPOINT_PATH
-                if not contrastive
-                else CONTRASTIVE_AUDIO_VAE_CHECKPOINT_PATH
-            ),
-            PHOTO_VAE_CHECKPOINT_PATH,
-            split="train",
-            audio_first=False,
-            num_pairs_per_species=50,
-        )
-
-        val_dataset = BirdCallPhotoLatentMix(
-            (
-                AUDIO_LATENT_DATASET_PATH
-                if not contrastive
-                else CONTRASTIVE_LATENT_DATASET_PATH
-            ),
-            PHOTO_LATENT_DATASET_PATH,
-            (
-                AUDIO_VAE_CHECKPOINT_PATH
-                if not contrastive
-                else CONTRASTIVE_AUDIO_VAE_CHECKPOINT_PATH
-            ),
-            PHOTO_VAE_CHECKPOINT_PATH,
-            split="val",
-            audio_first=False,
-            num_pairs_per_species=50,
-        )
-
-        save_path = Path(GENERATED_PHOTO_PATH) / (
-            "Contrastive" if contrastive else "Noncontrastive"
-        )
-
-        for split, dataset in zip(["train", "val"], [train_dataset, val_dataset]):
-            dataloader = torch.utils.data.DataLoader(
-                dataset,
-                batch_size=1,
-                shuffle=False,
-                pin_memory=True,
-            )
-
-            for i, (latent_1, latent_2, species) in enumerate(dataloader):
-                latent_1 = latent_1.to(DEVICE)
-                latent_2 = latent_2.to(DEVICE)
-
-                samples = diffusion.sample(latent_2, dif_steps=50, device=DEVICE)
-
-                with torch.no_grad():
-                    photo_generated = vae.decode(samples[-1].to(DEVICE))
-                    torchvision.utils.save_image(
-                        (photo_generated.clamp(0, 1) * 255).to(torch.uint8),
-                        save_path / split / species / f"generated_{i}.jpg",
-                    )
-
-            fid = calculate_fid(save_path / split, PHOTO_DATASET_PATH)
-            accuracy = calculate_accuracy(
-                save_path / split,
-                split=split,
-                yolo_path=PHOTO_CLASSIFIER_PATH,
-                batch_size=BATCH_SIZE * 32,
-                device=DEVICE,
-            )
-
-            results[contrastive] = {
-                split: {
-                    "fid": fid,
-                    "accuracy": accuracy,
-                }
-            }
-
-    return results
+    pass
 
 
 def evaluate_photo_metrics():
