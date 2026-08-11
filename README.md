@@ -5,10 +5,6 @@
 conda env create -f environment.yaml
 ```
 
-## Dataset Sample
-
-To look at the sample data, run `dataset_sample.ipynb`.
-
 ## Prepare Dataset
 
 The full dataset (preprocessed and latents) is available at https://livejohnshopkins-my.sharepoint.com/:u:/g/personal/rluo15_jh_edu/IQCEm53x2HKqQb22S9wMaJGzAeE_AVNClyl6p2F1jb8AdLg?e=Nj2gi8. Create a folder called data at the base of this project (next to src). Download the file to data, then cd into data and do `tar -xf birdcallbirdphoto_dataset_final.tar`. It should create `iNaturalistLatentsAudio`, `iNaturalistLatentsContrastiveAudio`, `iNaturalistLatentsPhoto`, `iNaturalistPrunedCropped`, and `iNaturalistPrunedPreprocessedAudio`.
@@ -33,6 +29,12 @@ use generate_audio_latents.py and generate_photo_latents.py to pregenerate the a
  - train_photo_diffusion_contrastive.py
 
 Note that you will likely need to adjust arguments and input paths for each of these scripts. See each script for usage instructions.
+
+## Dataset Sample [DEPRECATED]
+
+To look at the sample data, run `dataset_sample.ipynb`.
+
+Note: this has been deprecated as the dataset classes have evolved. The original notebook is left as is if you want to look.
 
 ## Training
 
