@@ -11,7 +11,9 @@ To look at the sample data, run `dataset_sample.ipynb`.
 
 ## Prepare Dataset
 
-To prepare the dataset from scratch, download the iNaturalist 2021 Competition Dataset (https://github.com/visipedia/inat_comp/tree/master/2021) and the iNaturalist Sounds Dataset (https://github.com/visipedia/inat_sounds/tree/main/2024). Then, run the following from the scripts directory:
+The full dataset (preprocessed and latents) is available at https://livejohnshopkins-my.sharepoint.com/:u:/g/personal/rluo15_jh_edu/IQCEm53x2HKqQb22S9wMaJGzAeE_AVNClyl6p2F1jb8AdLg?e=Nj2gi8. Create a folder called data at the base of this project (next to src). Download the file to data, then cd into data and do `tar -xf birdcallbirdphoto_dataset_final.tar`. It should create `iNaturalistLatentsAudio`, `iNaturalistLatentsContrastiveAudio`, `iNaturalistLatentsPhoto`, `iNaturalistPrunedCropped`, and `iNaturalistPrunedPreprocessedAudio`.
+
+Otherwise, to prepare the dataset from scratch, download the iNaturalist 2021 Competition Dataset (https://github.com/visipedia/inat_comp/tree/master/2021) and the iNaturalist Sounds Dataset (https://github.com/visipedia/inat_sounds/tree/main/2024). Then, run the following from the scripts directory:
  - prune_inat.py (both audio and photo)
  - rename_inat_audio_to_common_name.py (audio only)
  - rename_inat_photo_to_common_name.py (photo only)
@@ -31,8 +33,6 @@ use generate_audio_latents.py and generate_photo_latents.py to pregenerate the a
  - train_photo_diffusion_contrastive.py
 
 Note that you will likely need to adjust arguments and input paths for each of these scripts. See each script for usage instructions.
-
-Otherwise, the full dataset (preprocessed and latents) is available at https://livejohnshopkins-my.sharepoint.com/:u:/g/personal/rluo15_jh_edu/IQCEm53x2HKqQb22S9wMaJGzAeE_AVNClyl6p2F1jb8AdLg?e=Nj2gi8. Create a folder called data at the base of this project (next to src). Download the file to data, then cd into data and do `tar -xf birdcallbirdphoto_dataset_final.tar`. It should create `iNaturalistLatentsAudio`, `iNaturalistLatentsContrastiveAudio`, `iNaturalistLatentsPhoto`, `iNaturalistPrunedCropped`, and `iNaturalistPrunedPreprocessedAudio`.
 
 ## Training
 
